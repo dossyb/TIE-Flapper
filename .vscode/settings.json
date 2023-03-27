@@ -9,4 +9,5 @@
     "terminal.integrated.shellArgs.windows": [
         "--login"
     ],
+    "C_Cpp.errorSquiggles": "enabled",
 }
