@@ -131,19 +131,19 @@ int main()
             quit = end_game();
         }
 
-        if ( playerX + PLAYER_WIDTH > pipe1X + 10 && playerX < pipe1X + PIPE_WIDTH - 10 && playerY < pipe1Y - 10)
+        if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2 )
         {
             quit = end_game();
         }
-        if ( playerX + PLAYER_WIDTH > pipe1X + 10 && playerX < pipe1X + PIPE_WIDTH - 10 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 10 )
+        if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
             quit = end_game();
         }
-        if ( playerX + PLAYER_WIDTH > pipe2X + 10 && playerX < pipe2X + PIPE_WIDTH - 10 && playerY < pipe2Y - 10)
+        if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2 )
         {
             quit = end_game();
         }
-        if ( playerX + PLAYER_WIDTH > pipe2X + 10 && playerX < pipe2X + PIPE_WIDTH - 10 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 10 )
+        if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
             quit = end_game();
         }
