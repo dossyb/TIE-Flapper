@@ -4,9 +4,17 @@ using namespace std;
 
 #define FLAP_SPEED -5
 #define PIPE_WIDTH 60
-#define PIPE_GAP 125
-#define PLAYER_HEIGHT 50
-#define PLAYER_WIDTH 60
+#define PIPE_GAP 225
+#define PLAYER_HEIGHT 90
+#define PLAYER_WIDTH 90
+
+bool end_game()
+{
+    bool quit;
+    draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
+    quit = true;
+    return quit;
+}
 
 int main()
 {
@@ -39,7 +47,7 @@ int main()
     bool score_flag;
 
     score = 0;
-    high_score = 10;
+    high_score = 0;
     score_flag = false;
 
     backgroundX = -1900;
@@ -59,9 +67,9 @@ int main()
         
         draw_bitmap("background", backgroundX, backgroundY);
         draw_bitmap("player", playerX, playerY);
-        fill_rectangle(COLOR_GRAY, pipe1X, -100, PIPE_WIDTH, pipe1Y);
+        fill_rectangle(COLOR_GRAY, pipe1X, 0, PIPE_WIDTH, pipe1Y);
         fill_rectangle(COLOR_GRAY, pipe1X, pipe1Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe1Y);
-        fill_rectangle(COLOR_GRAY, pipe2X, -100, PIPE_WIDTH, pipe2Y);
+        fill_rectangle(COLOR_GRAY, pipe2X, 0, PIPE_WIDTH, pipe2Y);
         fill_rectangle(COLOR_GRAY, pipe2X, pipe2Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe2Y);
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
@@ -87,13 +95,19 @@ int main()
         if ( pipe1X < -200 )
         {
             pipe1X = 600;
-            pipe1Y = rnd(screen_height() - PIPE_GAP);
+            do {
+                pipe1Y = rnd(500);
+            }
+            while ( pipe1Y < 100 );
         }
 
         if ( pipe2X < -200 )
         {
             pipe2X = 600;
-            pipe2Y = rnd(screen_height() - PIPE_GAP);
+            do {
+                pipe2Y = rnd(500);
+            }
+            while ( pipe2Y < 100 );
         }
 
         if ( (playerX > (pipe1X + PIPE_WIDTH) or playerX > (pipe2X + PIPE_WIDTH)) and score_flag == false )
@@ -112,10 +126,26 @@ int main()
             high_score = score;
         }
 
-        if ( playerY > screen_height() + 50 )
+        if ( playerY + PLAYER_HEIGHT > screen_height() || playerY < 0 )
         {
-            draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
-            quit = true;
+            quit = end_game();
+        }
+
+        if ( playerX + PLAYER_WIDTH > pipe1X + 10 && playerX < pipe1X + PIPE_WIDTH - 10 && playerY < pipe1Y - 10)
+        {
+            quit = end_game();
+        }
+        if ( playerX + PLAYER_WIDTH > pipe1X + 10 && playerX < pipe1X + PIPE_WIDTH - 10 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 10 )
+        {
+            quit = end_game();
+        }
+        if ( playerX + PLAYER_WIDTH > pipe2X + 10 && playerX < pipe2X + PIPE_WIDTH - 10 && playerY < pipe2Y - 10)
+        {
+            quit = end_game();
+        }
+        if ( playerX + PLAYER_WIDTH > pipe2X + 10 && playerX < pipe2X + PIPE_WIDTH - 10 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 10 )
+        {
+            quit = end_game();
         }
 
         refresh_screen(60);
