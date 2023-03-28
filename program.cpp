@@ -174,11 +174,11 @@ int game(int status)
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
 
-        pipe1X -= 1.5;
-        pipe2X -= 1.5;
+        pipe1X -= 2;
+        pipe2X -= 2;
         playerY += playerVel;
 
-        if ( key_typed(SPACE_KEY) )
+        if ( key_typed(SPACE_KEY) || (mouse_down(LEFT_BUTTON)))
         {
             playerVel = FLAP_SPEED;
         }
