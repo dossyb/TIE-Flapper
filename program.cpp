@@ -56,7 +56,6 @@ int end_game(double x, double y, bitmap player, int high_score)
 
 int main_menu(int status)
 {
-    music menu_music;
     int high_score;
 
     load_bitmap("background-blurred", "background-blurred.jpg");
@@ -66,8 +65,6 @@ int main_menu(int status)
     load_bitmap("exit", "button.png");
     high_score = get_high_score();
     load_sound_effect("tie", "tie.wav");
-    menu_music = load_music("menu", "menu_music.mp3");
-    play_music(menu_music, 5, 0.25f);
 
     do {
         process_events();
@@ -106,10 +103,39 @@ int main_menu(int status)
 
 int info_screen(int status)
 {
-    // TODO
-    refresh_screen(60);
-    delay(1000);
-    status = 0;
+    load_bitmap("back", "button.png");
+    load_bitmap("arrow", "arrow.png");
+    load_bitmap("tie", "tie-fighter.png");
+    while( status == 3) 
+    {
+        process_events();
+        draw_bitmap("background-blurred", -1900, -600);
+        draw_bitmap("back", 220, 700);
+        draw_text("Due to the Empire's ongoing financial", COLOR_WHITE, "game-font", 24, 40, 50);
+        draw_text("troubles, Darth Vader has replaced", COLOR_WHITE, "game-font", 24, 40, 80);
+        draw_text("your usual TIE Fighter with a TIE", COLOR_WHITE, "game-font", 24, 40, 110);
+        draw_text("Flapper to save on fuel costs.", COLOR_WHITE, "game-font", 24, 40, 140);
+
+        draw_text("Master your new ship by flying", COLOR_WHITE, "game-font", 24, 40, 200);
+        draw_text("it through a series of obstacles.", COLOR_WHITE, "game-font", 24, 40, 230);
+        draw_text("Don't ask who put them there.", COLOR_WHITE, "game-font", 24, 40, 260);
+
+        draw_bitmap("tie", 100, 430);
+        draw_bitmap("arrow", 200, 420);
+
+        draw_text("SPACE", COLOR_WHITE, "game-font", 30, 300, 420);
+        draw_text("or", COLOR_WHITE, "game-font", 24, 300, 465);
+        draw_text("LEFT MOUSE", COLOR_WHITE, "game-font", 30, 300, 500);
+
+        draw_text("Created by Haydon Boyd", COLOR_WHITE, "game-font", 24, 125, 660);
+        
+        draw_text("BACK", COLOR_WHITE, "game-font", 32, 255, 710);
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 700 && mouse_y() < 770)
+        {
+            status = 0;
+        }     
+        refresh_screen(60);
+    }
     return status;
 }
 
@@ -160,7 +186,7 @@ int game(int status)
     load_sound_effect("explosion", "explosion.wav");
     load_sound_effect("score-ding", "score.wav");
     level_music = load_music("level-music", "level_music.mp3");
-    play_music(level_music, 1, 0.25f);
+    play_music(level_music, 5, 0.25f);
     do
     {
         process_events();
@@ -232,10 +258,13 @@ int game(int status)
 int main()
 {
     int option;
+    music menu_music;
     option = 0;
     open_window("TIE Flapper", 600, 800);
     clear_screen(COLOR_BLACK);
     load_font("game-font", "Space Crusaders.ttf");
+    menu_music = load_music("menu", "menu_music.mp3");
+    play_music(menu_music, 5, 0.25f);
 
     while ( option != 1 )
     {
@@ -244,6 +273,7 @@ int main()
         case 2:
             delay(1500);
             option = game(option);
+            play_music(menu_music, 5, 0.25f);
             break;
         case 3:
             option = info_screen(option);

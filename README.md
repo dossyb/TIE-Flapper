@@ -8,4 +8,3 @@ Planned features include:
 * Better textures for the obstacles  
 * Scrolling background (maybe)   
 * Refactor code
-* Add "Info" screen with premise and controls
