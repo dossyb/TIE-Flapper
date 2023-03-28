@@ -76,9 +76,13 @@ int main_menu(int status)
         draw_text("START", COLOR_WHITE, "game-font", 32, 250, 410);
         draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
         draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
-        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 250 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
         {
             status = 2;
+        }
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 610 && mouse_y() < 670)
+        {
+            status = 1;
         }
         refresh_screen(60);
     }
@@ -86,7 +90,15 @@ int main_menu(int status)
     return status;
 }
 
-void game(int status)
+int info_screen(int status)
+{
+    // TODO
+    delay(1000);
+    status = 0;
+    return status;
+}
+
+int game(int status)
 {
     // player variables
     double playerX;
@@ -177,30 +189,17 @@ void game(int status)
             score_flag = false;
         }
 
-        if ( playerY + PLAYER_HEIGHT > screen_height() || playerY < 0 )
+        if ( (playerY + PLAYER_HEIGHT > screen_height() || playerY < 0) ||
+        (playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2) ||
+        (playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2) ||
+        (playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2) ||
+        (playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2) )
         {
             status = end_game(playerX, playerY, player, high_score);
         }
-
-        if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2 )
-        {
-            status = end_game(playerX, playerY, player, high_score);
-        }
-        if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
-        {
-            status = end_game(playerX, playerY, player, high_score);
-        }
-        if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2 )
-        {
-            status = end_game(playerX, playerY, player, high_score);
-        }
-        if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
-        {
-            status = end_game(playerX, playerY, player, high_score);
-        }
-
         refresh_screen(60);
     } while ( status == 2 );
+    return status;
 }
 
 int main()
@@ -216,17 +215,16 @@ int main()
         switch (option)
         {
         case 2:
-            game(option);
-            option = 0;
+            option = game(option);
+            break;
+        case 3:
+            option = info_screen(option);
             break;
         default:
             option = main_menu(option);
             break;
         }
     }
-
     refresh_screen(60);
-    delay(5000);
-    
     return 0;
 }
