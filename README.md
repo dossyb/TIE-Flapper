@@ -10,3 +10,4 @@ Planned features include:
 * Scrolling background (maybe)  
 * Sound effects/music  
 * Refactor code
+* Add "Info" screen with premise and controls

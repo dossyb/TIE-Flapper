@@ -34,20 +34,59 @@ double reset_pipe(double y)
     return y;
 }
 
-bool end_game(double x, double y, bitmap player, int high_score)
+int end_game(double x, double y, bitmap player, int high_score)
 {
-    bool quit;
+    int status;
     bitmap player_death;
-    save_high_score(high_score);
-    player_death = load_bitmap("player-death", "tie-fighter-destroyed.png");
-    draw_bitmap_on_bitmap(player, player_death, x, y);
-    refresh_screen(60);
-    draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
-    quit = true;
-    return quit;
+    int timer;
+    timer = 180;
+    process_events();
+    while ( timer != 0)
+    {
+        save_high_score(high_score);
+        player_death = load_bitmap("player-death", "tie-fighter-destroyed.png");
+        draw_bitmap(player_death, x, y);
+        draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
+        refresh_screen(60);
+        timer -= 1;
+    }
+    status = 0;
+    return status;
 }
 
-void game()
+int main_menu(int status)
+{
+    load_bitmap("background-blurred", "background-blurred.jpg");
+    load_bitmap("menu-logo", "tie-fighter.png");
+    load_bitmap("start", "button.png");
+    load_bitmap("info", "button.png");
+    load_bitmap("exit", "button.png");
+
+    do {
+        process_events();
+
+        draw_bitmap("background-blurred", -1900, -600);
+        draw_text("TIE", COLOR_WHITE, "game-font", 100, 150, 200);
+        draw_text("Flapper", COLOR_WHITE, "game-font", 64, 160, 300);
+
+        draw_bitmap("menu-logo", 320, 220);
+        draw_bitmap("start", 220, 400);
+        draw_bitmap("info", 220, 500);
+        draw_bitmap("exit", 220, 600);
+        draw_text("START", COLOR_WHITE, "game-font", 32, 250, 410);
+        draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
+        draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 250 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
+        {
+            status = 2;
+        }
+        refresh_screen(60);
+    }
+    while ( status == 0 );
+    return status;
+}
+
+void game(int status)
 {
     // player variables
     double playerX;
@@ -83,9 +122,6 @@ void game()
 
     // backgroundX = -1900;
     // backgroundY = -600;
-
-    bool quit;
-    quit = false;
     
     load_bitmap("background", "background.jpg");
     player = load_bitmap("player", "tie-fighter.png");
@@ -143,46 +179,51 @@ void game()
 
         if ( playerY + PLAYER_HEIGHT > screen_height() || playerY < 0 )
         {
-            quit = end_game(playerX, playerY, player, high_score);
+            status = end_game(playerX, playerY, player, high_score);
         }
 
         if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2 )
         {
-            quit = end_game(playerX, playerY, player, high_score);
+            status = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
-            quit = end_game(playerX, playerY, player, high_score);
+            status = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2 )
         {
-            quit = end_game(playerX, playerY, player, high_score);
+            status = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
-            quit = end_game(playerX, playerY, player, high_score);
+            status = end_game(playerX, playerY, player, high_score);
         }
 
         refresh_screen(60);
-    } while ( not quit );
+    } while ( status == 2 );
 }
 
 int main()
 {
+    int option;
+    option = 0;
     open_window("TIE Flapper", 600, 800);
     clear_screen(COLOR_BLACK);
     load_font("game-font", "Space Crusaders.ttf");
-    load_bitmap("background-blurred", "background-blurred.jpg");
-    load_bitmap("menu-logo", "tie-fighter.png");
-    draw_bitmap("background-blurred", -1900, -600);
-    draw_text("TIE", COLOR_WHITE, "game-font", 100, 150, 200);
-    draw_text("Flapper", COLOR_WHITE, "game-font", 64, 160, 300);
-    draw_bitmap("menu-logo", 320, 220);
 
-    refresh_screen(60);
-    delay(3000); 
-
-    game();
+    while ( option != 1 )
+    {
+        switch (option)
+        {
+        case 2:
+            game(option);
+            option = 0;
+            break;
+        default:
+            option = main_menu(option);
+            break;
+        }
+    }
 
     refresh_screen(60);
     delay(5000);
