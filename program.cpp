@@ -1,4 +1,6 @@
 #include "splashkit.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -8,9 +10,38 @@ using namespace std;
 #define PLAYER_HEIGHT 90
 #define PLAYER_WIDTH 90
 
-bool end_game()
+void save_high_score(int high_score)
+{
+    ofstream file;
+    file.open("highscore.txt");
+    file << high_score;
+    file.close();
+}
+
+int get_high_score()
+{
+    int high_score;
+    ifstream input_file("highscore.txt");
+    input_file >> high_score;
+    return high_score;
+}
+
+double reset_pipe(double y)
+{
+    do {
+        y = rnd(500);
+    } while ( y < 100 );
+    return y;
+}
+
+bool end_game(double x, double y, bitmap player, int high_score)
 {
     bool quit;
+    bitmap player_death;
+    save_high_score(high_score);
+    player_death = load_bitmap("player-death", "tie-fighter-destroyed.png");
+    draw_bitmap_on_bitmap(player, player_death, x, y);
+    refresh_screen(60);
     draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
     quit = true;
     return quit;
@@ -23,6 +54,8 @@ int main()
     double playerY;
     double playerVel = 0;
     double playerAcc = 0.1;
+    bitmap player;
+
 
     playerX = 50;
     playerY = 50;
@@ -47,7 +80,7 @@ int main()
     bool score_flag;
 
     score = 0;
-    high_score = 0;
+    high_score = get_high_score();
     score_flag = false;
 
     backgroundX = -1900;
@@ -58,7 +91,7 @@ int main()
 
     open_window("TIE Flapper", 600, 800);
     clear_screen(COLOR_BLACK);
-    load_bitmap("player", "tie-fighter.png");
+    player = load_bitmap("player", "tie-fighter.png");
     load_bitmap("background", "background.jpg");
     load_font("game-font", "Space Crusaders.ttf");
     do
@@ -66,7 +99,7 @@ int main()
         process_events();
         
         draw_bitmap("background", backgroundX, backgroundY);
-        draw_bitmap("player", playerX, playerY);
+        draw_bitmap(player, playerX, playerY);
         fill_rectangle(COLOR_GRAY, pipe1X, 0, PIPE_WIDTH, pipe1Y);
         fill_rectangle(COLOR_GRAY, pipe1X, pipe1Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe1Y);
         fill_rectangle(COLOR_GRAY, pipe2X, 0, PIPE_WIDTH, pipe2Y);
@@ -92,28 +125,25 @@ int main()
             playerVel += playerAcc;
         }
 
-        if ( pipe1X < -200 )
+        if (pipe1X < - 200)
         {
             pipe1X = 600;
-            do {
-                pipe1Y = rnd(500);
-            }
-            while ( pipe1Y < 100 );
+            pipe1Y = reset_pipe(pipe1Y);
         }
-
-        if ( pipe2X < -200 )
+        if (pipe2X < - 200)
         {
             pipe2X = 600;
-            do {
-                pipe2Y = rnd(500);
-            }
-            while ( pipe2Y < 100 );
+            pipe2Y = reset_pipe(pipe2Y);
         }
 
         if ( (playerX > (pipe1X + PIPE_WIDTH) or playerX > (pipe2X + PIPE_WIDTH)) and score_flag == false )
         {
             score++;
-            score_flag = true;
+            score_flag = true;           
+            if ( score >= high_score )
+            {
+                high_score = score;
+            }
         }
 
         if ( playerX < (pipe1X + PIPE_WIDTH) and playerX < (pipe2X + PIPE_WIDTH) )
@@ -121,31 +151,26 @@ int main()
             score_flag = false;
         }
 
-        if ( score >= high_score )
-        {
-            high_score = score;
-        }
-
         if ( playerY + PLAYER_HEIGHT > screen_height() || playerY < 0 )
         {
-            quit = end_game();
+            quit = end_game(playerX, playerY, player, high_score);
         }
 
         if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2 )
         {
-            quit = end_game();
+            quit = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
-            quit = end_game();
+            quit = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2 )
         {
-            quit = end_game();
+            quit = end_game(playerX, playerY, player, high_score);
         }
         if ( playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2 )
         {
-            quit = end_game();
+            quit = end_game(playerX, playerY, player, high_score);
         }
 
         refresh_screen(60);
