@@ -56,14 +56,18 @@ int end_game(double x, double y, bitmap player, int high_score)
 
 int main_menu(int status)
 {
+    music menu_music;
+    int high_score;
+
     load_bitmap("background-blurred", "background-blurred.jpg");
     load_bitmap("menu-logo", "tie-fighter.png");
     load_bitmap("start", "button.png");
     load_bitmap("info", "button.png");
     load_bitmap("exit", "button.png");
-    load_sound_effect("tie", "tie.wav");
-    int high_score;
     high_score = get_high_score();
+    load_sound_effect("tie", "tie.wav");
+    menu_music = load_music("menu", "menu_music.mp3");
+    play_music(menu_music, 5, 0.25f);
 
     do {
         process_events();
@@ -82,6 +86,7 @@ int main_menu(int status)
         draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
         {
+            stop_music();
             play_sound_effect("tie");
             status = 2;
         }
@@ -116,7 +121,7 @@ int game(int status)
     double playerVel;
     double playerAcc;
     bitmap player;
-    music music;
+    music level_music;
 
     playerX = 50;
     playerY = 50;
@@ -154,8 +159,8 @@ int game(int status)
     player = load_bitmap("player", "tie-fighter.png");
     load_sound_effect("explosion", "explosion.wav");
     load_sound_effect("score-ding", "score.wav");
-    music = load_music("level-music", "level_music.mp3");
-    play_music(music, 1, 0.25f);
+    level_music = load_music("level-music", "level_music.mp3");
+    play_music(level_music, 1, 0.25f);
     do
     {
         process_events();
