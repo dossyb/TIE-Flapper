@@ -47,7 +47,7 @@ bool end_game(double x, double y, bitmap player, int high_score)
     return quit;
 }
 
-int main()
+void game()
 {
     // player variables
     double playerX;
@@ -72,9 +72,6 @@ int main()
     pipe2X = 1000;
     pipe2Y = 400;
 
-    double backgroundX;
-    double backgroundY;
-
     // score variables
     int score;
     int high_score;
@@ -84,22 +81,19 @@ int main()
     high_score = get_high_score();
     score_flag = false;
 
-    backgroundX = -1900;
-    backgroundY = -600;
+    // backgroundX = -1900;
+    // backgroundY = -600;
 
     bool quit;
     quit = false;
-
-    open_window("TIE Flapper", 600, 800);
-    clear_screen(COLOR_BLACK);
-    player = load_bitmap("player", "tie-fighter.png");
+    
     load_bitmap("background", "background.jpg");
-    load_font("game-font", "Space Crusaders.ttf");
+    player = load_bitmap("player", "tie-fighter.png");
     do
     {
         process_events();
         
-        draw_bitmap("background", backgroundX, backgroundY);
+        draw_bitmap("background", -1900, -600);
         draw_bitmap(player, playerX, playerY);
         fill_rectangle(COLOR_GRAY, pipe1X, 0, PIPE_WIDTH, pipe1Y);
         fill_rectangle(COLOR_GRAY, pipe1X, pipe1Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe1Y);
@@ -107,12 +101,6 @@ int main()
         fill_rectangle(COLOR_GRAY, pipe2X, pipe2Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe2Y);
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
-
-        // Background Scrolling (TODO)
-        // backgroundX -= 2;
-        // if ( backgroundX < -3240){
-        //     backgroundX = 0;
-        // }
 
         pipe1X -= 1.5;
         pipe2X -= 1.5;
@@ -177,6 +165,26 @@ int main()
 
         refresh_screen(60);
     } while ( not quit );
+}
+
+int main()
+{
+    open_window("TIE Flapper", 600, 800);
+    clear_screen(COLOR_BLACK);
+    load_font("game-font", "Space Crusaders.ttf");
+    load_bitmap("background-blurred", "background-blurred.jpg");
+    load_bitmap("menu-logo", "tie-fighter.png");
+    draw_bitmap("background-blurred", -1900, -600);
+    draw_text("TIE", COLOR_WHITE, "game-font", 100, 150, 200);
+    draw_text("Flapper", COLOR_WHITE, "game-font", 64, 160, 300);
+    draw_bitmap("menu-logo", 320, 220);
+
+    refresh_screen(60);
+    delay(3000); 
+
+    game();
+
+    refresh_screen(60);
     delay(5000);
     
     return 0;
