@@ -44,7 +44,7 @@ int end_game(double x, double y, bitmap player, int high_score)
     while ( timer != 0)
     {
         save_high_score(high_score);
-        player_death = load_bitmap("player-death", "tie-fighter-destroyed.png");
+        player_death = load_bitmap("player-death", "explosion.png");
         draw_bitmap(player_death, x, y);
         draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
         refresh_screen(60);
