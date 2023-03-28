@@ -52,13 +52,14 @@ int main()
     // player variables
     double playerX;
     double playerY;
-    double playerVel = 0;
-    double playerAcc = 0.1;
+    double playerVel;
+    double playerAcc;
     bitmap player;
-
 
     playerX = 50;
     playerY = 50;
+    playerVel = 0;
+    playerAcc = 0.1;
 
     // pipe variables
     double pipe1X;
@@ -106,6 +107,7 @@ int main()
         fill_rectangle(COLOR_GRAY, pipe2X, pipe2Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe2Y);
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
+
         // Background Scrolling (TODO)
         // backgroundX -= 2;
         // if ( backgroundX < -3240){
