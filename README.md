@@ -6,7 +6,6 @@ Game is currently in a functional state with physics, collision, and score-keepi
 Planned features include:   
 * Restart button on game over screen   
 * Better textures for the obstacles  
-* Scrolling background (maybe)  
-* Sound effects/music  
+* Scrolling background (maybe)   
 * Refactor code
 * Add "Info" screen with premise and controls

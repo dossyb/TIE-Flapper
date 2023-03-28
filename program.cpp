@@ -61,6 +61,7 @@ int main_menu(int status)
     load_bitmap("start", "button.png");
     load_bitmap("info", "button.png");
     load_bitmap("exit", "button.png");
+    load_sound_effect("tie", "tie.wav");
     int high_score;
     high_score = get_high_score();
 
@@ -71,7 +72,7 @@ int main_menu(int status)
         draw_text("TIE", COLOR_WHITE, "game-font", 100, 150, 200);
         draw_text("Flapper", COLOR_WHITE, "game-font", 64, 160, 300);
 
-        draw_bitmap("menu-logo", 320, 220);
+        draw_bitmap("menu-logo", 320, 215);
         draw_bitmap("start", 220, 400);
         draw_bitmap("info", 220, 500);
         draw_bitmap("exit", 220, 600);
@@ -81,8 +82,13 @@ int main_menu(int status)
         draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
         {
+            play_sound_effect("tie");
             status = 2;
         }
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 510 && mouse_y() < 570)
+        {
+            status = 3;
+        }        
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 610 && mouse_y() < 670)
         {
             status = 1;
@@ -96,6 +102,7 @@ int main_menu(int status)
 int info_screen(int status)
 {
     // TODO
+    refresh_screen(60);
     delay(1000);
     status = 0;
     return status;
@@ -109,6 +116,7 @@ int game(int status)
     double playerVel;
     double playerAcc;
     bitmap player;
+    music music;
 
     playerX = 50;
     playerY = 50;
@@ -144,6 +152,10 @@ int game(int status)
     
     load_bitmap("background", "background.jpg");
     player = load_bitmap("player", "tie-fighter.png");
+    load_sound_effect("explosion", "explosion.wav");
+    load_sound_effect("score-ding", "score.wav");
+    music = load_music("level-music", "level_music.mp3");
+    play_music(music, 1, 0.25f);
     do
     {
         process_events();
@@ -183,6 +195,7 @@ int game(int status)
 
         if ( (playerX > (pipe1X + PIPE_WIDTH) or playerX > (pipe2X + PIPE_WIDTH)) and score_flag == false )
         {
+            play_sound_effect("score-ding");
             score++;
             score_flag = true;           
             if ( score >= high_score )
@@ -202,7 +215,9 @@ int game(int status)
         (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY < pipe2Y - dif) ||
         (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + dif) )
         {
+            play_sound_effect("explosion");
             status = end_game(playerX, playerY, player, high_score);
+            fade_music_out(1000);
         }
         refresh_screen(60);
     } while ( status == 2 );
@@ -222,6 +237,7 @@ int main()
         switch (option)
         {
         case 2:
+            delay(1500);
             option = game(option);
             break;
         case 3:
