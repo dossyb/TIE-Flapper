@@ -61,6 +61,8 @@ int main_menu(int status)
     load_bitmap("start", "button.png");
     load_bitmap("info", "button.png");
     load_bitmap("exit", "button.png");
+    int high_score;
+    high_score = get_high_score();
 
     do {
         process_events();
@@ -76,6 +78,7 @@ int main_menu(int status)
         draw_text("START", COLOR_WHITE, "game-font", 32, 250, 410);
         draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
         draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
+        draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
         {
             status = 2;
@@ -122,6 +125,10 @@ int game(int status)
     pipe1Y = 200;
     pipe2X = 1000;
     pipe2Y = 400;
+
+    // difficulty variable (affects collision)
+    int dif;
+    dif = 4;
 
     // score variables
     int score;
@@ -190,10 +197,10 @@ int game(int status)
         }
 
         if ( (playerY + PLAYER_HEIGHT > screen_height() || playerY < 0) ||
-        (playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY < pipe1Y - 2) ||
-        (playerX + PLAYER_WIDTH > pipe1X + 2 && playerX < pipe1X + PIPE_WIDTH - 2 && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + 2) ||
-        (playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY < pipe2Y - 2) ||
-        (playerX + PLAYER_WIDTH > pipe2X + 2 && playerX < pipe2X + PIPE_WIDTH - 2 && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + 2) )
+        (playerX + PLAYER_WIDTH > pipe1X + dif && playerX < pipe1X + PIPE_WIDTH - dif && playerY < pipe1Y - dif) ||
+        (playerX + PLAYER_WIDTH > pipe1X + dif && playerX < pipe1X + PIPE_WIDTH - dif && playerY > pipe1Y + PIPE_GAP - PLAYER_HEIGHT + dif) ||
+        (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY < pipe2Y - dif) ||
+        (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + dif) )
         {
             status = end_game(playerX, playerY, player, high_score);
         }
