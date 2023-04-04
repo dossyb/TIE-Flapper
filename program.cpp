@@ -376,7 +376,11 @@ int main()
 {
     int option;
     option = 0;
-    open_window("TIE Flapper", 600, 800);
+    bitmap icon;
+    window game_window;
+    icon = load_bitmap("icon", "tie-fighter.png");
+    game_window = open_window("TIE Flapper", 600, 800);
+    window_set_icon(game_window, icon);
     clear_screen(COLOR_BLACK);
     load_font("game-font", "Space Crusaders.ttf");
     music_on = true;
