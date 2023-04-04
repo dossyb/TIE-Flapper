@@ -6,10 +6,14 @@ using namespace std;
 
 #define FLAP_SPEED -5
 #define PIPE_WIDTH 60
+#define PIPE_HEIGHT 600
 #define PIPE_GAP 225
 #define PLAYER_HEIGHT 90
 #define PLAYER_WIDTH 90
 #define BG_WIDTH 3840
+
+bool music_on;
+bool sound_on;
 
 void save_high_score(int high_score)
 {
@@ -58,14 +62,23 @@ int end_game(double x, double y, bitmap player, int high_score)
 int main_menu(int status)
 {
     int high_score;
+    music menu_music;
+    music_on = music_on;
+    sound_on = sound_on;
 
     load_bitmap("background-blurred", "background-blurred.jpg");
     load_bitmap("menu-logo", "tie-fighter.png");
     load_bitmap("start", "button.png");
     load_bitmap("info", "button.png");
     load_bitmap("exit", "button.png");
+    load_bitmap("music-on", "musicOn.png");
+    load_bitmap("music-off", "musicOff.png");
+    load_bitmap("audio-on", "audioOn.png");
+    load_bitmap("audio-off", "audioOff.png");
     high_score = get_high_score();
     load_sound_effect("tie", "tie.wav");
+    menu_music = load_music("menu", "menu_music.mp3");
+
 
     do {
         process_events();
@@ -73,6 +86,28 @@ int main_menu(int status)
         draw_bitmap("background-blurred", -1900, -600);
         draw_text("TIE", COLOR_WHITE, "game-font", 100, 150, 200);
         draw_text("Flapper", COLOR_WHITE, "game-font", 64, 160, 300);
+
+        if ( music_on )
+        {
+            draw_bitmap("music-on", 540, 10);
+        }
+        else
+        {
+            draw_bitmap("music-off", 540, 10);
+            fade_music_out(1000);
+        }
+        if ( music_on && !music_playing() )
+        {
+            play_music(menu_music, 5, 0.25f);
+        }
+        if ( sound_on )
+        {
+            draw_bitmap("audio-on", 500, 10);
+        }
+        else
+        {
+            draw_bitmap("audio-off", 500, 10);
+        }
 
         draw_bitmap("menu-logo", 320, 215);
         draw_bitmap("start", 220, 400);
@@ -82,10 +117,21 @@ int main_menu(int status)
         draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
         draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
         draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 540 && mouse_x() < 580 && mouse_y() > 20 && mouse_y() < 80)
+        {
+            music_on = !music_on;
+        }
+        if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 500 && mouse_x() < 540 && mouse_y() > 20 && mouse_y() < 80)
+        {
+            sound_on = !sound_on;
+        }
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 410 && mouse_y() < 470)
         {
             stop_music();
-            play_sound_effect("tie");
+            if ( sound_on )
+            {
+                play_sound_effect("tie");
+            }
             status = 2;
         }
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 510 && mouse_y() < 570)
@@ -156,15 +202,19 @@ int game(int status)
     playerAcc = 0.1;
 
     // pipe variables
+    bitmap pipe1U;
+    bitmap pipe1L;
+    bitmap pipe2U;
+    bitmap pipe2L;
     double pipe1X;
-    double pipe1Y;
+    double pipe1Y = 0;
     double pipe2X;
-    double pipe2Y;
+    double pipe2Y = 0;
 
     pipe1X = 600;
-    pipe1Y = 200;
+    pipe1Y = reset_pipe(pipe1Y);
     pipe2X = 1000;
-    pipe2Y = 400;
+    pipe2Y = reset_pipe(pipe2Y);
 
     // difficulty variable (affects collision)
     int dif;
@@ -179,8 +229,8 @@ int game(int status)
     high_score = get_high_score();
     score_flag = false;
 
-    bitmap bg1;
-    bitmap bg2;
+    // background variables
+    bitmap bg;
     int bg1X;
     int bgY;
     int bg2X;
@@ -189,24 +239,31 @@ int game(int status)
     bgY = -600;
     bg2X = (BG_WIDTH + bg1X);
     
-    bg1 = load_bitmap("background", "background.jpg");
-    bg2 = bg1;
+    bg = load_bitmap("background", "background.jpg");
     player = load_bitmap("player", "tie-fighter.png");
+    pipe1U = load_bitmap("pipe", "pipe.png");
+    pipe1L = load_bitmap("pipe", "pipe.png");
+    pipe2U = load_bitmap("pipe", "pipe.png");
+    pipe2L = load_bitmap("pipe", "pipe.png");
     load_sound_effect("explosion", "explosion.wav");
     load_sound_effect("score-ding", "score.wav");
+    load_sound_effect("whoosh", "whoosh.wav");
     level_music = load_music("level-music", "level_music.mp3");
-    play_music(level_music, 5, 0.25f);
+    if ( music_on )
+    {
+        play_music(level_music, 5, 0.25f);
+    }
     do
     {
         process_events();
         
-        draw_bitmap(bg1, bg1X, bgY);
-        draw_bitmap(bg2, bg2X, bgY);
+        draw_bitmap(bg, bg1X, bgY);
+        draw_bitmap(bg, bg2X, bgY);
         draw_bitmap(player, playerX, playerY);
-        fill_rectangle(COLOR_GRAY, pipe1X, 0, PIPE_WIDTH, pipe1Y);
-        fill_rectangle(COLOR_GRAY, pipe1X, pipe1Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe1Y);
-        fill_rectangle(COLOR_GRAY, pipe2X, 0, PIPE_WIDTH, pipe2Y);
-        fill_rectangle(COLOR_GRAY, pipe2X, pipe2Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe2Y);
+        draw_bitmap(pipe1U, pipe1X, pipe1Y - PIPE_HEIGHT);
+        draw_bitmap(pipe1L, pipe1X, pipe1Y + PIPE_GAP);
+        draw_bitmap(pipe2U, pipe2X, pipe2Y - PIPE_HEIGHT);
+        draw_bitmap(pipe2L, pipe2X, pipe2Y + PIPE_GAP);
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
 
@@ -219,6 +276,10 @@ int game(int status)
         if ( key_typed(SPACE_KEY) || (mouse_down(LEFT_BUTTON)))
         {
             playerVel = FLAP_SPEED;
+            if ( sound_on )
+            {
+                play_sound_effect("whoosh", 0.25f);
+            }
         }
         else
         {
@@ -247,7 +308,10 @@ int game(int status)
 
         if ( (playerX > (pipe1X + PIPE_WIDTH) or playerX > (pipe2X + PIPE_WIDTH)) and score_flag == false )
         {
-            play_sound_effect("score-ding");
+            if ( sound_on )
+            {
+                play_sound_effect("score-ding");
+            }
             score++;
             score_flag = true;           
             if ( score >= high_score )
@@ -267,7 +331,10 @@ int game(int status)
         (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY < pipe2Y - dif) ||
         (playerX + PLAYER_WIDTH > pipe2X + dif && playerX < pipe2X + PIPE_WIDTH - dif && playerY > pipe2Y + PIPE_GAP - PLAYER_HEIGHT + dif) )
         {
-            play_sound_effect("explosion");
+            if ( sound_on )
+            {
+                play_sound_effect("explosion");
+            }
             status = end_game(playerX, playerY, player, high_score);
             fade_music_out(1000);
         }
@@ -279,13 +346,12 @@ int game(int status)
 int main()
 {
     int option;
-    music menu_music;
     option = 0;
     open_window("TIE Flapper", 600, 800);
     clear_screen(COLOR_BLACK);
     load_font("game-font", "Space Crusaders.ttf");
-    menu_music = load_music("menu", "menu_music.mp3");
-    play_music(menu_music, 5, 0.25f);
+    music_on = true;
+    sound_on = true;
 
     while ( option != 1 )
     {
@@ -294,7 +360,6 @@ int main()
         case 2:
             delay(1500);
             option = game(option);
-            play_music(menu_music, 5, 0.25f);
             break;
         case 3:
             option = info_screen(option);
@@ -302,7 +367,7 @@ int main()
         default:
             option = main_menu(option);
             break;
-        }
+        }      
     }
     refresh_screen(60);
     return 0;
