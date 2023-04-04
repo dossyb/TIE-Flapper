@@ -9,6 +9,7 @@ using namespace std;
 #define PIPE_GAP 225
 #define PLAYER_HEIGHT 90
 #define PLAYER_WIDTH 90
+#define BG_WIDTH 3840
 
 void save_high_score(int high_score)
 {
@@ -178,10 +179,18 @@ int game(int status)
     high_score = get_high_score();
     score_flag = false;
 
-    // backgroundX = -1900;
-    // backgroundY = -600;
+    bitmap bg1;
+    bitmap bg2;
+    int bg1X;
+    int bgY;
+    int bg2X;
+
+    bg1X = -1900;
+    bgY = -600;
+    bg2X = (BG_WIDTH + bg1X);
     
-    load_bitmap("background", "background.jpg");
+    bg1 = load_bitmap("background", "background.jpg");
+    bg2 = bg1;
     player = load_bitmap("player", "tie-fighter.png");
     load_sound_effect("explosion", "explosion.wav");
     load_sound_effect("score-ding", "score.wav");
@@ -191,7 +200,8 @@ int game(int status)
     {
         process_events();
         
-        draw_bitmap("background", -1900, -600);
+        draw_bitmap(bg1, bg1X, bgY);
+        draw_bitmap(bg2, bg2X, bgY);
         draw_bitmap(player, playerX, playerY);
         fill_rectangle(COLOR_GRAY, pipe1X, 0, PIPE_WIDTH, pipe1Y);
         fill_rectangle(COLOR_GRAY, pipe1X, pipe1Y + PIPE_GAP, PIPE_WIDTH, screen_height() - pipe1Y);
@@ -202,6 +212,8 @@ int game(int status)
 
         pipe1X -= 2;
         pipe2X -= 2;
+        bg1X -= 1;
+        bg2X -= 1;
         playerY += playerVel;
 
         if ( key_typed(SPACE_KEY) || (mouse_down(LEFT_BUTTON)))
@@ -211,6 +223,15 @@ int game(int status)
         else
         {
             playerVel += playerAcc;
+        }
+
+        if (bg1X < -4000)
+        {
+            bg1X = bg2X + BG_WIDTH;
+        }
+        if (bg2X < -4000)
+        {
+            bg2X = bg1X + BG_WIDTH;
         }
 
         if (pipe1X < - 200)
