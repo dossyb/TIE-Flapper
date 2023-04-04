@@ -34,8 +34,8 @@ int get_high_score()
 double reset_pipe(double y)
 {
     do {
-        y = rnd(500);
-    } while ( y < 100 );
+        y = rnd(550);
+    } while ( y < 50 );
     return y;
 }
 
@@ -113,9 +113,30 @@ int main_menu(int status)
         draw_bitmap("start", 220, 400);
         draw_bitmap("info", 220, 500);
         draw_bitmap("exit", 220, 600);
-        draw_text("PLAY", COLOR_WHITE, "game-font", 32, 262, 410);
-        draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
-        draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
+        if (mouse_x() > 220 && mouse_x() < 380 && mouse_y() > 400 && mouse_y() < 460)
+        {
+            draw_text("PLAY", COLOR_GRAY, "game-font", 32, 262, 410);
+        }
+        else
+        {
+            draw_text("PLAY", COLOR_WHITE, "game-font", 32, 262, 410);
+        }
+        if (mouse_x() > 220 && mouse_x() < 380 && mouse_y() > 500 && mouse_y() < 560)
+        {
+            draw_text("INFO", COLOR_GRAY, "game-font", 32, 262, 510);
+        }
+        else
+        {
+            draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
+        }
+        if (mouse_x() > 220 && mouse_x() < 380 && mouse_y() > 600 && mouse_y() < 660)
+        {
+            draw_text("EXIT", COLOR_GRAY, "game-font", 32, 262, 610);
+        }
+        else
+        {
+            draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
+        }
         draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 540 && mouse_x() < 580 && mouse_y() > 20 && mouse_y() < 80)
         {
@@ -176,7 +197,15 @@ int info_screen(int status)
 
         draw_text("Created by Haydon Boyd", COLOR_WHITE, "game-font", 24, 125, 660);
         
-        draw_text("BACK", COLOR_WHITE, "game-font", 32, 255, 710);
+
+        if (mouse_x() > 220 && mouse_x() < 380 && mouse_y() > 700 && mouse_y() < 760)
+        {
+            draw_text("BACK", COLOR_GRAY, "game-font", 32, 255, 710);
+        }
+        else
+        {
+            draw_text("BACK", COLOR_WHITE, "game-font", 32, 255, 710);
+        }        
         if (mouse_clicked(LEFT_BUTTON) && mouse_x() > 220 && mouse_x() < 400 && mouse_y() > 700 && mouse_y() < 770)
         {
             status = 0;
