@@ -113,7 +113,7 @@ int main_menu(int status)
         draw_bitmap("start", 220, 400);
         draw_bitmap("info", 220, 500);
         draw_bitmap("exit", 220, 600);
-        draw_text("START", COLOR_WHITE, "game-font", 32, 250, 410);
+        draw_text("PLAY", COLOR_WHITE, "game-font", 32, 262, 410);
         draw_text("INFO", COLOR_WHITE, "game-font", 32, 262, 510);
         draw_text("EXIT", COLOR_WHITE, "game-font", 32, 262, 610);
         draw_text("High Score: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 140, 750);
@@ -310,7 +310,7 @@ int game(int status)
         {
             if ( sound_on )
             {
-                play_sound_effect("score-ding");
+                play_sound_effect("score-ding", 0.25f);
             }
             score++;
             score_flag = true;           
