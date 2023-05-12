@@ -1,6 +1,7 @@
 #include "splashkit.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -44,13 +45,21 @@ struct bg_data
     int width;
 };
 
+struct junk_data
+{
+    int x;
+    int y;
+    int vel;
+    bitmap bmp;
+};
+
 pipe_data new_pipe(int x, int y)
 {
     pipe_data pipe;
     pipe.x = x;
     pipe.y = rnd(550);
-    pipe.upper = load_bitmap("pipe", "pipe.png");
-    pipe.lower = load_bitmap("pipe", "pipe.png");
+    pipe.upper = bitmap_named("pipe");
+    pipe.lower = bitmap_named("pipe");
 
     return pipe;
 }
@@ -63,7 +72,7 @@ player_data new_player()
     player.y = 50;
     player.vel = 0;
     player.acc = 0.1;
-    player.bmp = load_bitmap("player", "tie-fighter.png");
+    player.bmp = bitmap_named("player");
 
     return player;
 }
@@ -74,10 +83,22 @@ bg_data new_bg(int x, int y)
 
     bg.x = x;
     bg.y = y;
-    bg.bmp = load_bitmap("background", "background.jpg");
+    bg.bmp = bitmap_named("background");
     bg.width = 3840;
 
     return bg;
+}
+
+junk_data new_junk()
+{
+    junk_data junk;
+    junk.x = 1000 + rnd(3000);
+    junk.y = rnd(700);
+    junk.vel = 3;
+    string num = "junk" + to_string(rnd(1, 10));
+    junk.bmp = bitmap_named(num);
+
+    return junk;
 }
 
 void button_hover(int x_left, int x_right, int y_top, int y_bottom, string text)
@@ -139,6 +160,20 @@ void boundary_exceeded(int &pipe_x, int &pipe_y)
     }
 }
 
+void boundary_exceeded(vector<junk_data> &junk)
+{
+    for (int i = 0; i < junk.size(); i++)
+    {
+        if (junk[i].x < -500)
+        {
+            junk[i].x = 5000;
+            junk[i].y = rnd(700);
+            junk_data added_junk = new_junk();
+            junk.push_back(added_junk);
+        }
+    }
+}
+
 void flap(double &vel, const bool &sound_set)
 {
     vel = FLAP_SPEED;
@@ -180,27 +215,6 @@ int get_high_score()
     return high_score;
 }
 
-void load_resources()
-{
-    load_font("game-font", "Space Crusaders.ttf");
-    load_bitmap("background-blurred", "background-blurred.jpg");
-    load_bitmap("menu-logo", "tie-fighter.png");
-    load_bitmap("start", "button.png");
-    load_bitmap("info", "button.png");
-    load_bitmap("exit", "button.png");
-    load_bitmap("music-on", "musicOn.png");
-    load_bitmap("music-off", "musicOff.png");
-    load_bitmap("audio-on", "audioOn.png");
-    load_bitmap("audio-off", "audioOff.png");
-    load_sound_effect("tie", "tie.wav");
-    load_bitmap("back", "button.png");
-    load_bitmap("arrow", "arrow.png");
-    load_bitmap("tie", "tie-fighter.png");
-    load_sound_effect("explosion", "explosion.wav");
-    load_sound_effect("score-ding", "score.wav");
-    load_sound_effect("whoosh", "whoosh.wav");
-}
-
 void end_game(menu_options &menu, player_data &player, int &high_score)
 {
     int timer = 180;
@@ -208,7 +222,7 @@ void end_game(menu_options &menu, player_data &player, int &high_score)
     while ( timer != 0)
     {
         save_high_score(high_score);
-        player.bmp = load_bitmap("player-death", "explosion.png");
+        player.bmp = bitmap_named("player-death");
         draw_bitmap(player.bmp, player.x, player.y);
         draw_text("Game Over!", COLOR_WHITE, "game-font", 48, 150, 400);
         refresh_screen(60);
@@ -286,13 +300,15 @@ void info_screen(menu_options &menu, bool &music_set, bool &sound_set)
         draw_text("Master your new ship by flying", COLOR_WHITE, "game-font", 24, 40, 200);
         draw_text("it through a series of obstacles.", COLOR_WHITE, "game-font", 24, 40, 230);
         draw_text("Don't ask who put them there.", COLOR_WHITE, "game-font", 24, 40, 260);
+        draw_text("There's quite a few asteroids flying", COLOR_WHITE, "game-font", 24, 40, 320);
+        draw_text("around too, don't get distracted!", COLOR_WHITE, "game-font", 24, 40, 350);
 
-        draw_bitmap("tie", 100, 430);
-        draw_bitmap("arrow", 200, 420);
+        draw_bitmap("tie", 100, 460);
+        draw_bitmap("arrow", 200, 450);
 
-        draw_text("SPACE", COLOR_WHITE, "game-font", 30, 300, 420);
-        draw_text("or", COLOR_WHITE, "game-font", 24, 300, 465);
-        draw_text("LEFT MOUSE", COLOR_WHITE, "game-font", 30, 300, 500);
+        draw_text("SPACE", COLOR_WHITE, "game-font", 30, 300, 450);
+        draw_text("or", COLOR_WHITE, "game-font", 24, 300, 495);
+        draw_text("LEFT MOUSE", COLOR_WHITE, "game-font", 30, 300, 530);
 
         draw_text("Created by Haydon Boyd", COLOR_WHITE, "game-font", 24, 125, 660);
     
@@ -326,6 +342,10 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
     // difficulty variable
     int dif = 4;
 
+    vector<junk_data> junk_arr = {};
+    junk_data junk = new_junk();
+    junk_arr.push_back(junk);
+
     level_music = load_music("level-music", "level_music.mp3");
     if ( music_set ) play_music(level_music, 5, 0.25f);
     do
@@ -335,11 +355,17 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
         
         draw_bitmap(bg_a.bmp, bg_a.x, bg_a.y);
         draw_bitmap(bg_b.bmp, bg_b.x, bg_b.y);
+        for (int i = 0; i < junk_arr.size(); i++)
+        {
+            draw_bitmap(junk_arr[i].bmp, junk_arr[i].x, junk_arr[i].y);
+            junk_arr[i].x -= junk_arr[i].vel;
+        }
         draw_bitmap(player.bmp, player.x, player.y);
         draw_bitmap(pipe_a.upper, pipe_a.x, pipe_a.y - pipe_a.height);
         draw_bitmap(pipe_a.lower, pipe_a.x, pipe_a.y + pipe_a.gap);
         draw_bitmap(pipe_b.upper, pipe_b.x, pipe_b.y - pipe_b.height);
         draw_bitmap(pipe_b.lower, pipe_b.x, pipe_b.y + pipe_b.gap);
+
         draw_text("Score: " + to_string(score), COLOR_WHITE, "game-font", 42, 20, 750);
         draw_text("Best: " + to_string(high_score), COLOR_WHITE, "game-font", 42, 400, 750);
 
@@ -347,6 +373,7 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
         pipe_b.x -= 2;
         boundary_exceeded(pipe_a.x, pipe_a.y);
         boundary_exceeded(pipe_b.x, pipe_b.y);
+        boundary_exceeded(junk_arr);
         bg_a.x -= 1;
         bg_b.x -= 1;
         if (bg_a.x < -4000) bg_a.x = bg_b.x + bg_b.width;
@@ -365,8 +392,8 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
 int main()
 {
     menu_options menu = MAIN;
-    load_resources();
-    bitmap icon = load_bitmap("icon", "tie-fighter.png");
+    load_resource_bundle("resources", "resources.txt");
+    bitmap icon = bitmap_named("icon");
     window game_window = open_window("TIE Flapper", 600, 800);
     window_set_icon(game_window, icon);
     clear_screen(COLOR_BLACK);    
