@@ -45,7 +45,7 @@ struct bg_data
     int width;
 };
 
-struct junk_data
+struct asteroid_data
 {
     int x;
     int y;
@@ -89,18 +89,19 @@ bg_data new_bg(int x, int y)
     return bg;
 }
 
-junk_data new_junk()
+asteroid_data new_asteroid()
 {
-    junk_data junk;
-    junk.x = 1000 + rnd(3000);
-    junk.y = rnd(700);
-    junk.vel = 3;
-    string num = "junk" + to_string(rnd(1, 10));
-    junk.bmp = bitmap_named(num);
+    asteroid_data asteroid;
+    asteroid.x = 1000 + rnd(3000);
+    asteroid.y = rnd(700);
+    asteroid.vel = 3;
+    string num = "asteroid" + to_string(rnd(1, 10));
+    asteroid.bmp = bitmap_named(num);
 
-    return junk;
+    return asteroid;
 }
 
+// change menu button text colour when mouse hovers over
 void button_hover(int x_left, int x_right, int y_top, int y_bottom, string text)
 {
     if (mouse_x() > x_left && mouse_x() < x_right && mouse_y() > y_top && mouse_y() < y_bottom)
@@ -109,6 +110,7 @@ void button_hover(int x_left, int x_right, int y_top, int y_bottom, string text)
     }
 }
 
+// recognise mouse click for menu buttons
 void button_clicked(int x_left, int x_right, int y_top, int y_bottom, menu_options &menu, int index)
 {
     if (mouse_clicked(LEFT_BUTTON) && mouse_x() > x_left && mouse_x() < x_right && mouse_y() > y_top && mouse_y() < y_bottom)
@@ -117,6 +119,7 @@ void button_clicked(int x_left, int x_right, int y_top, int y_bottom, menu_optio
     }
 }
 
+// recognise mouse click for music/sound toggle
 void button_clicked(int x_left, int x_right, int y_top, int y_bottom, bool &set)
 {
     if (mouse_clicked(LEFT_BUTTON) && mouse_x() > x_left && mouse_x() < x_right && mouse_y() > y_top && mouse_y() < y_bottom)
@@ -125,6 +128,7 @@ void button_clicked(int x_left, int x_right, int y_top, int y_bottom, bool &set)
     }
 }
 
+// set random location for gap in pipe
 double reset_pipe(double y)
 {
     do {
@@ -133,6 +137,7 @@ double reset_pipe(double y)
     return y;
 }
 
+// return true if player exceeds boundaries of screen or makes contact with edge of pipes
 bool collision(const player_data &player, const pipe_data &pipe_a, const pipe_data &pipe_b, const bool &sound_set, const int &dif)
 {
     if ((player.y + player.height > screen_height() || player.y < 0) ||
@@ -151,6 +156,7 @@ bool collision(const player_data &player, const pipe_data &pipe_a, const pipe_da
     return false;
 }
 
+// reset pipe position once offscreen
 void boundary_exceeded(int &pipe_x, int &pipe_y)
 {
     if (pipe_x < - 200)
@@ -160,26 +166,29 @@ void boundary_exceeded(int &pipe_x, int &pipe_y)
     }
 }
 
-void boundary_exceeded(vector<junk_data> &junk)
+// reset asteroid position once offscreen and add new asteroid
+void boundary_exceeded(vector<asteroid_data> &asteroid)
 {
-    for (int i = 0; i < junk.size(); i++)
+    for (int i = 0; i < asteroid.size(); i++)
     {
-        if (junk[i].x < -500)
+        if (asteroid[i].x < -500)
         {
-            junk[i].x = 5000;
-            junk[i].y = rnd(700);
-            junk_data added_junk = new_junk();
-            junk.push_back(added_junk);
+            asteroid[i].x = 5000;
+            asteroid[i].y = rnd(700);
+            asteroid_data added_asteroid = new_asteroid();
+            asteroid.push_back(added_asteroid);
         }
     }
 }
 
+// player movement
 void flap(double &vel, const bool &sound_set)
 {
     vel = FLAP_SPEED;
     if ( sound_set ) play_sound_effect("whoosh", 0.25f);
 }
 
+// score keeping
 void increase_score(const player_data &player, const pipe_data &pipe_a, const pipe_data &pipe_b, int &score, int &high_score, bool &score_flag, const bool &sound_set)
 {
     if ( (player.x > (pipe_a.x + pipe_a.width) or player.x > (pipe_b.x + pipe_b.width)) and score_flag == false )
@@ -199,6 +208,7 @@ void increase_score(const player_data &player, const pipe_data &pipe_a, const pi
     if ( player.x < (pipe_a.x + pipe_a.width) and player.x < (pipe_b.x + pipe_b.width) ) score_flag = false;
 }
 
+// store high score in text file
 void save_high_score(const int &high_score)
 {
     ofstream file;
@@ -207,6 +217,7 @@ void save_high_score(const int &high_score)
     file.close();
 }
 
+// retrieve high score from text file
 int get_high_score()
 {
     int high_score;
@@ -215,6 +226,7 @@ int get_high_score()
     return high_score;
 }
 
+// show game over screen and return to main menu
 void end_game(menu_options &menu, player_data &player, int &high_score)
 {
     int timer = 180;
@@ -300,8 +312,8 @@ void info_screen(menu_options &menu, bool &music_set, bool &sound_set)
         draw_text("Master your new ship by flying", COLOR_WHITE, "game-font", 24, 40, 200);
         draw_text("it through a series of obstacles.", COLOR_WHITE, "game-font", 24, 40, 230);
         draw_text("Don't ask who put them there.", COLOR_WHITE, "game-font", 24, 40, 260);
-        draw_text("There's quite a few asteroids flying", COLOR_WHITE, "game-font", 24, 40, 320);
-        draw_text("around too, don't get distracted!", COLOR_WHITE, "game-font", 24, 40, 350);
+        draw_text("We're also passing an asteroid field,", COLOR_WHITE, "game-font", 24, 40, 320);
+        draw_text("you're safe but don't get distracted!", COLOR_WHITE, "game-font", 24, 40, 350);
 
         draw_bitmap("tie", 100, 460);
         draw_bitmap("arrow", 200, 450);
@@ -342,9 +354,10 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
     // difficulty variable
     int dif = 4;
 
-    vector<junk_data> junk_arr = {};
-    junk_data junk = new_junk();
-    junk_arr.push_back(junk);
+    // initialise asteroid array
+    vector<asteroid_data> asteroid_arr = {};
+    asteroid_data asteroid = new_asteroid();
+    asteroid_arr.push_back(asteroid);
 
     level_music = load_music("level-music", "level_music.mp3");
     if ( music_set ) play_music(level_music, 5, 0.25f);
@@ -355,10 +368,10 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
         
         draw_bitmap(bg_a.bmp, bg_a.x, bg_a.y);
         draw_bitmap(bg_b.bmp, bg_b.x, bg_b.y);
-        for (int i = 0; i < junk_arr.size(); i++)
+        for (int i = 0; i < asteroid_arr.size(); i++)
         {
-            draw_bitmap(junk_arr[i].bmp, junk_arr[i].x, junk_arr[i].y);
-            junk_arr[i].x -= junk_arr[i].vel;
+            draw_bitmap(asteroid_arr[i].bmp, asteroid_arr[i].x, asteroid_arr[i].y);
+            asteroid_arr[i].x -= asteroid_arr[i].vel;
         }
         draw_bitmap(player.bmp, player.x, player.y);
         draw_bitmap(pipe_a.upper, pipe_a.x, pipe_a.y - pipe_a.height);
@@ -373,16 +386,18 @@ void game(menu_options &menu, bool &music_set, bool &sound_set)
         pipe_b.x -= 2;
         boundary_exceeded(pipe_a.x, pipe_a.y);
         boundary_exceeded(pipe_b.x, pipe_b.y);
-        boundary_exceeded(junk_arr);
+        boundary_exceeded(asteroid_arr);
         bg_a.x -= 1;
         bg_b.x -= 1;
         if (bg_a.x < -4000) bg_a.x = bg_b.x + bg_b.width;
         if (bg_b.x < -4000) bg_b.x = bg_a.x + bg_a.width;
         player.y += player.vel;
 
+        // flap on player input, otherwise gravity applies (for all intents and purposes there is a planetary body below the screen with a gravitational pull)
         if ( key_typed(SPACE_KEY) || (mouse_down(LEFT_BUTTON))) flap(player.vel, sound_set);
         else player.vel += player.acc;
 
+        // end game if player collides with pipe/edge of screen
         if (collision(player, pipe_a, pipe_b, sound_set, dif)) end_game(menu, player, high_score);
 
         refresh_screen(60);
@@ -400,6 +415,7 @@ int main()
     bool music_set = true;
     bool sound_set = true;
 
+    // handle menu logic and close game if exit is selected
     while ( menu != EXIT )
     {
         switch (menu)
